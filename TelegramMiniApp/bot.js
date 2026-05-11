@@ -1,12 +1,11 @@
 const TelegramBot = require('node-telegram-bot-api');
-const mysql = require('mysql2');
+const { Pool } = require('pg');
 
-const token = 'YOUR_BOT_TOKEN_HERE';
+const token = '8343068175:AAGpihpOCq8s81TBq53cSUN4C5ksQ0X0IgY';
 const bot = new TelegramBot(token, { polling: true });
 
-console.log("YourAppName Bot Active (Updated Text)...");
+console.log("✅ Bot Active...");
 
-// --- ANTI-CRASH SYSTEM ---
 bot.on('polling_error', (error) => {
   console.log(`[POLLING_ERROR] ${error.code}: ${error.message}`);
 });
@@ -15,65 +14,57 @@ process.on('uncaughtException', (err) => {
   console.log(`[CRITICAL_ERROR] ${err.message}`);
 });
 
-// --- DATABASE CONNECTION POOL ---
-const db = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'YOUR_MYSQL_PASSWORD_HERE',
-  database: 'your_database_name',
-  charset: 'utf8mb4',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+// =========================
+// PostgreSQL Connection
+// =========================
+const db = new Pool({
+  host: "aws-1-ap-southeast-1.pooler.supabase.com",
+  port: 5432,
+  user: "postgres.ecblqqfxjtxpgvmuqxtd",
+  password: "AVNS_hzGH8yeaY28AUeLVWQ4",
+  database: "postgres",
+  ssl: { rejectUnauthorized: false }
 });
 
-// Connection Test
-db.getConnection((err, connection) => {
-  if (err) {
-    console.error("❌ Database Error:", err.message);
-  } else {
-    console.log("✅ Database Connected Successfully.");
-    connection.release(); 
-  }
-});
+db.connect()
+  .then(() => console.log("✅ Database Connected Successfully."))
+  .catch(err => console.error("❌ Database Error:", err.message));
 
-// --- START COMMAND ---
+// =========================
+// START COMMAND
+// =========================
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
   const firstName = msg.from.first_name || "Friend";
   const joinedAt = new Date();
 
-  db.query('SELECT * FROM users WHERE telegram_id = ?', [chatId], (err, results) => {
-    if (err) {
-      console.error("❌ Lookup Error:", err.message);
-      return;
-    }
+  try {
+    const result = await db.query('SELECT * FROM users WHERE telegram_id = $1', [chatId]);
 
-    if (results.length === 0) {
-      const insertSql = "INSERT INTO users (telegram_id, name, points, binance_email, joined_at, balance) VALUES (?, ?, 10, '', ?, 0)";
-      db.query(insertSql, [chatId, firstName, joinedAt], (err2) => {
-        if (err2) console.error("❌ Insert Error:", err2.message);
-        else console.log(`👤 New User Joined: ${firstName}`);
-        sendWelcomeMessage(chatId, firstName, true);
-      });
+    if (result.rows.length === 0) {
+      await db.query(
+        "INSERT INTO users (telegram_id, name, points, binance_email, joined_at, balance) VALUES ($1, $2, 10, '', $3, 0)",
+        [chatId, firstName, joinedAt]
+      );
+      console.log(`👤 New User Joined: ${firstName}`);
+      sendWelcomeMessage(chatId, firstName, true);
     } else {
-      db.query('UPDATE users SET name = ? WHERE telegram_id = ?', [firstName, chatId]);
+      await db.query('UPDATE users SET name = $1 WHERE telegram_id = $2', [firstName, chatId]);
       sendWelcomeMessage(chatId, firstName, false);
     }
-  });
+  } catch (err) {
+    console.error("❌ Start Error:", err.message);
+  }
 });
 
-// --- NEW ATTRACTIVE MESSAGE FUNCTION ---
 function sendWelcomeMessage(chatId, firstName, isNewUser) {
   const keyboard = {
     reply_markup: {
       inline_keyboard: [
+        [{ text: "🚀 Open App & Earn", web_app: { url: "https://YOUR_DOMAIN_HERE/telegram/dashboard.html" } }],
         [
-          { text: "\uD83D\uDE80 Open App & Earn", web_app: { url: "https://yourdomain.com/telegram/dashboard.html" } }
-        ],
-        [
-          { text: "\uD83E\uDDE0 Play Quiz", web_app: { url: "https://yourdomain.com/telegram/quiz.html" } },
-          { text: "\uD83C\uDFE6 Withdraw", web_app: { url: "https://yourdomain.com/telegram/withdrawals.html" } }
+          { text: "🧠 Play Quiz", web_app: { url: "https://YOUR_DOMAIN_HERE/telegram/quiz.html" } },
+          { text: "🏦 Withdraw", web_app: { url: "https://YOUR_DOMAIN_HERE/telegram/withdrawals.html" } }
         ]
       ]
     }
@@ -82,34 +73,32 @@ function sendWelcomeMessage(chatId, firstName, isNewUser) {
   let message = "";
 
   if (isNewUser) {
-    // New User Message (Detailed Guide)
-    message = 
-`🚀 *Welcome to YourAppName, ${firstName}!*
+    message =
+`🚀 *Welcome to the App, ${firstName}!*
 
-🌍 *The Best Quiz App for Students & Learners!*
+🌍 *The Best Quiz App for Earners!*
 Turn your knowledge into pocket money. 🤑
 
 📝 *How to Earn? (3 Easy Steps)*
-1️⃣ *Play Quiz:* Answer simple questions. \uD83E\uDDE0
-2️⃣ *Win Coins:* Get rewards for every win. \uD83E\uDE99
-3️⃣ *Real Cash:* Convert coins to Real Money! \uD83D\uDCB8
+1️⃣ *Play Quiz:* Answer simple questions. 🧠
+2️⃣ *Win Coins:* Get rewards for every win. 🪙
+3️⃣ *Real Cash:* Convert coins to Real Money! 💸
 
 🎁 *Registration Gift:*
-You received *10 Coins* for free! \uD83C\uDF81
+You received *10 Coins* for free! 🎁
 
-*Click "Open App" to start earning!* \uD83D\uDC47`;
+*Click "Open App" to start earning!* 👇`;
   } else {
-    // Returning User Message (Short & Sweet)
-    message = 
-`\uD83D\uDC4B *Welcome Back, ${firstName}!*
+    message =
+`👋 *Welcome Back, ${firstName}!*
 
 🧠 *Ready to increase your knowledge?*
 Play quizzes and earn more coins today.
 
-\uD83D\uDCB0 *Status:* Active
+💰 *Status:* Active
 🚀 *Mode:* Earning ON
 
-*Tap below to continue!* \uD83D\uDC47`;
+*Tap below to continue!* 👇`;
   }
 
   bot.sendMessage(chatId, message, { parse_mode: "Markdown", ...keyboard });
