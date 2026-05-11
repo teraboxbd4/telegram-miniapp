@@ -1,7 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const { Pool } = require('pg');
 
-const token = '8343068175:AAGpihpOCq8s81TBq53cSUN4C5ksQ0X0IgY';
+const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 console.log("✅ Bot Active...");
@@ -18,11 +18,7 @@ process.on('uncaughtException', (err) => {
 // PostgreSQL Connection
 // =========================
 const db = new Pool({
-  host: "aws-1-ap-southeast-1.pooler.supabase.com",
-  port: 5432,
-  user: "postgres.ecblqqfxjtxpgvmuqxtd",
-  password: "AVNS_hzGH8yeaY28AUeLVWQ4",
-  database: "postgres",
+  connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
 
