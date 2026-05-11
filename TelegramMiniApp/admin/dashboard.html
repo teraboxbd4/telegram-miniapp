@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YourAppName | Premium Admin</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --bg: #09090b;
+            --card-bg: #18181b;
+            --primary: #00f2ff;
+            --success: #00ff9d;
+            --danger: #ff4757;
+            --warning: #ffd700;
+            --info: #0066ff;
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --border-thick: 3px solid #27272a;
+            --border-light: 2px solid #27272a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 10% 20%, rgba(0, 242, 255, 0.05) 0%, transparent 50%);
+        }
+
+        /* Rare Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 0px; border: 1px solid var(--bg); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        /* Neo Brutalism Button Style */
+        .btn {
+            cursor: pointer; padding: 12px 20px; font-weight: 800; font-size: 0.95rem;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--card-bg); color: var(--text-main);
+            border: 2px solid #3f3f46; border-radius: 8px;
+            box-shadow: 3px 3px 0px #000; transition: 0.2s; text-transform: uppercase;
+        }
+        .btn:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px #000; }
+
+        .btn-primary { background: var(--primary); color: #000; border-color: #000; }
+        .btn-danger { background: var(--danger); color: #000; border-color: #000; }
+        .btn-success { background: var(--success); color: #000; border-color: #000; }
+        .btn-warning { background: var(--warning); color: #000; border-color: #000; }
+
+        /* Header */
+        header {
+            margin: 20px; padding: 15px 25px; 
+            background: var(--card-bg); border: var(--border-thick); border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+        }
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand i { font-size: 32px; color: var(--primary); }
+        .brand h1 { font-size: 1.8rem; font-weight: 800; }
+
+        .container { padding: 20px; max-width: 1400px; margin: 0 auto; }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        
+        .stat-card { 
+            padding: 20px; background: var(--card-bg); border: var(--border-thick); 
+            border-radius: 12px; position: relative; transition: 0.2s;
+            box-shadow: 4px 4px 0px #000; cursor: pointer;
+        }
+        .stat-card:hover { transform: translate(-3px, -3px); }
+        
+        .card-blue:hover { box-shadow: 6px 6px 0px var(--primary); border-color: var(--primary); }
+        .card-purple:hover { box-shadow: 6px 6px 0px #a55eea; border-color: #a55eea; }
+        .card-gold:hover { box-shadow: 6px 6px 0px var(--warning); border-color: var(--warning); }
+        .card-green:hover { box-shadow: 6px 6px 0px var(--success); border-color: var(--success); }
+        .card-success:hover { box-shadow: 6px 6px 0px var(--success); border-color: var(--success); }
+
+        .stat-icon { position: absolute; top: 15px; right: 15px; font-size: 35px; opacity: 0.2; }
+        .stat-card h3 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card .value { font-size: 2.2rem; font-weight: 800; color: var(--text-main); }
+
+        /* Table Area */
+        .table-box { 
+            background: var(--card-bg); border: var(--border-thick); border-radius: 12px; 
+            padding: 20px; overflow-x: auto; box-shadow: 6px 6px 0px #000;
+        }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .section-header h2 { font-size: 1.5rem; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { text-align: left; padding: 15px; color: var(--text-muted); font-weight: 800; border-bottom: 3px solid #3f3f46; text-transform: uppercase; }
+        td { padding: 15px; font-size: 1rem; border-bottom: 1px solid #27272a; font-weight: 600; }
+        tr:hover td { background: #27272a; }
+
+        .status-pill { padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; border: 2px solid #000; box-shadow: 2px 2px 0px #000; }
+        .s-pending { background: var(--warning); color: #000; }
+        .s-paid { background: var(--success); color: #000; }
+        .s-rejected { background: var(--danger); color: #000; }
+
+        .icon-btn { width: 40px; height: 40px; border-radius: 8px; border: 2px solid #000; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 2px 2px 0px #000; transition: 0.2s; }
+        .icon-btn:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px #000; }
+        .btn-check { background: var(--success); color: #000; }
+        .btn-cross { background: var(--danger); color: #000; }
+        .btn-gear { background: var(--primary); color: #000; }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            z-index: 1000; display: none; align-items: center; justify-content: center;
+        }
+        
+        .modal-box {
+            background: var(--bg); border: 4px solid var(--primary);
+            width: 90%; max-width: 600px; border-radius: 12px; padding: 25px;
+            box-shadow: 10px 10px 0px var(--primary); position: relative;
+            max-height: 90vh; overflow-y: auto;
+        }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #27272a; padding-bottom: 15px; }
+        .modal-header h3 { font-size: 1.5rem; font-weight: 800; text-transform: uppercase; }
+
+        /* Search Box */
+        .search-box {
+            background: #18181b; border: 2px solid #3f3f46;
+            padding: 12px 18px; border-radius: 8px; display: flex; align-items: center; gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box:focus-within { border-color: var(--primary); box-shadow: 4px 4px 0px var(--primary); }
+        .search-box input { background: transparent; border: none; color: #fff; width: 100%; font-size: 1.1rem; font-family: inherit; font-weight: 600; }
+
+        /* Rare User List Style */
+        .user-card {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; background: #18181b; border: 2px solid #3f3f46; border-radius: 8px; margin-bottom: 15px;
+            transition: 0.2s; box-shadow: 3px 3px 0px #000;
+        }
+        .user-card:hover { border-color: var(--primary); box-shadow: 4px 4px 0px var(--primary); transform: translate(-2px, -2px); }
+        .user-name { font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .user-id { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; font-weight: 600; }
+        .ban-tag { background: var(--danger); color: #000; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; font-weight: 800; border: 1px solid #000; }
+
+        /* Manage Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; }
+        .tab-btn { flex: 1; padding: 12px; text-align: center; border-radius: 8px; cursor: pointer; font-weight: 800; border: 2px solid #3f3f46; background: #18181b; text-transform: uppercase; }
+        .tab-btn.active { background: var(--primary); color: #000; border-color: #000; box-shadow: 3px 3px 0px #000; }
+
+        .input-box {
+            width: 100%; padding: 15px; border-radius: 8px; background: #18181b;
+            border: 2px solid #3f3f46; color: #fff; font-size: 1.1rem; font-family: inherit; font-weight: 800; margin-bottom: 15px;
+        }
+        .input-box:focus { border-color: var(--primary); box-shadow: 4px 4px 0px var(--primary); }
+
+        .history-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; border: 2px solid #3f3f46; background: #18181b; border-radius: 8px; margin-bottom: 10px; font-weight: 800;
+        }
+
+        #toast {
+            position: fixed; bottom: 30px; right: 30px; padding: 15px 25px; border-radius: 8px;
+            background: var(--card-bg); border: 2px solid var(--primary); font-weight: 800; text-transform: uppercase;
+            color: #fff; transform: translateY(100px); opacity: 0; transition: 0.3s; z-index: 2000;
+            box-shadow: 5px 5px 0px var(--primary);
+        }
+        #toast.show { transform: translateY(0); opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <i class="ph-fill ph-shield-check"></i>
+            <h1>YourAppName Control</h1>
+        </div>
+        <div style="display:flex; gap:15px;">
+            <button class="btn btn-primary" onclick="window.location.href='quiz.html'"><i class="ph-bold ph-plus"></i> Add Quiz</button>
+            <button class="btn btn-danger" onclick="logout()"><i class="ph-bold ph-sign-out"></i></button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card card-blue" onclick="openUsersModal()">
+                <i class="ph-fill ph-users-three stat-icon"></i>
+                <h3>Total Players</h3>
+                <div class="value" id="totalUsers">0</div>
+            </div>
+            
+            <div class="stat-card card-purple">
+                <i class="ph-fill ph-game-controller stat-icon"></i>
+                <h3>Active Quizzes</h3>
+                <div class="value" id="totalQuizzes">0</div>
+            </div>
+            
+            <div class="stat-card card-gold">
+                <i class="ph-fill ph-currency-dollar stat-icon"></i>
+                <h3>Distributed</h3>
+                <div class="value" id="totalEarnings">$0</div>
+            </div>
+            
+            <div class="stat-card card-green">
+                <i class="ph-fill ph-clock-countdown stat-icon"></i>
+                <h3>Pending W/D</h3>
+                <div class="value" id="pendingWithdrawals">0</div>
+            </div>
+            
+            <div class="stat-card card-success" style="border-color:var(--success);">
+                <i class="ph-fill ph-trophy stat-icon"></i>
+                <h3>Quizzes Won</h3>
+                <div class="value" id="quizzesWon">0</div> 
+            </div>
+        </div>
+
+        <div class="table-box">
+            <div class="section-header">
+                <h2><i class="ph-bold ph-wallet"></i> Recent Withdrawals</h2>
+                <button class="btn" onclick="loadWithdrawals()">Refresh</button>
+            </div>
+            <table>
+                <thead><tr><th>Task ID</th><th>Player</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+                <tbody id="tableBody"><tr><td colspan="6" style="text-align:center;">Fetching data...</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="usersModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="ph-bold ph-users"></i> All Players</h3>
+                <button class="icon-btn btn-danger" onclick="closeUsersModal()"><i class="ph-bold ph-x"></i></button>
+            </div>
+            
+            <div class="search-box">
+                <i class="ph-bold ph-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="Search by name or ID..." onkeyup="searchUsers()">
+            </div>
+
+            <div id="usersList" style="padding-bottom: 10px;"></div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" id="loadMoreUsers" onclick="loadUsers()">Load More Players</button>
+        </div>
+    </div>
+
+    <div id="manageModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="ph-bold ph-wrench"></i> Manage Player</h3>
+                <button class="icon-btn btn-danger" onclick="closeManageModal()"><i class="ph-bold ph-x"></i></button>
+            </div>
+            
+            <div style="margin-bottom: 25px; padding: 15px; border: 2px solid #3f3f46; border-radius: 8px; background: #18181b;">
+                <h4 id="manageUserName" style="font-size:1.5rem; font-weight:800; color:var(--primary);">Name</h4>
+                <p id="manageUserId" style="color:var(--text-muted); font-weight:600;">ID: 12345</p>
+            </div>
+
+            <div class="tabs">
+                <div class="tab-btn active" id="tabControls" onclick="switchTab('controls')">Money Control</div>
+                <div class="tab-btn" id="tabHistory" onclick="switchTab('history')">Player History</div>
+            </div>
+            
+            <div id="controlsSection">
+                <input type="number" step="0.01" id="usdAmount" class="input-box" placeholder="Enter USD Amount (e.g. 1.50)">
+                <div style="display:flex; gap:15px; margin-bottom:20px;">
+                    <button class="btn btn-success" style="flex:1;" onclick="updateCoins('add')">Add USD</button>
+                    <button class="btn btn-warning" style="flex:1;" onclick="updateCoins('minus')">Remove USD</button>
+                </div>
+                <button id="banBtn" class="btn btn-danger" style="width:100%;" onclick="toggleBan()">Ban Player</button>
+            </div>
+
+            <div id="historySection" style="display:none;">
+                <div id="historyContent">
+                    <p style="text-align:center; color:var(--text-muted); font-weight:600;">Loading records...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Message</div>
+
+    <script>
+        const API_BASE = "https://admin.yourdomain.com/api";
+        let activeUserId = null;
+        let activeUserBanStatus = 0;
+        let userOffset = 0;
+        let searchTimer;
+
+        function showToast(msg, type='success') {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.borderColor = type === 'error' ? 'var(--danger)' : 'var(--primary)';
+            t.style.boxShadow = type === 'error' ? '5px 5px 0px var(--danger)' : '5px 5px 0px var(--primary)';
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function logout() {
+            if(confirm("Exit Admin Panel?")) {
+                localStorage.removeItem("admin");
+                window.location.href = "login.html";
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${API_BASE}/stats`);
+                const data = await res.json();
+                document.getElementById("totalUsers").innerText = data.total_users.toLocaleString();
+                document.getElementById("totalQuizzes").innerText = data.total_quizzes;
+                document.getElementById("totalEarnings").innerText = "$" + data.total_earnings.toLocaleString();
+                document.getElementById("pendingWithdrawals").innerText = data.pending_withdrawals;
+                
+                if(data.quizzes_won !== undefined) document.getElementById("quizzesWon").innerText = data.quizzes_won;
+                
+            } catch (e) {}
+        }
+
+        async function loadWithdrawals() {
+            const body = document.getElementById("tableBody");
+            try {
+                const res = await fetch(`${API_BASE}/withdrawals`);
+                const data = await res.json();
+                body.innerHTML = "";
+                if (!data.length) return body.innerHTML = `<tr><td colspan="6" style="text-align:center;">No pending requests</td></tr>`;
+                
+                data.forEach(w => {
+                    const sClass = w.status === 'paid' ? 's-paid' : w.status === 'rejected' ? 's-rejected' : 's-pending';
+                    const actions = w.status === 'pending' ? `
+                        <div style="display:flex; gap:10px;">
+                            <button class="icon-btn btn-check" onclick="updateStatus(${w.id}, 'paid')"><i class="ph-bold ph-check"></i></button>
+                            <button class="icon-btn btn-cross" onclick="updateStatus(${w.id}, 'rejected')"><i class="ph-bold ph-x"></i></button>
+                        </div>
+                    ` : '<span style="color:#555; font-weight:800;">Done</span>';
+
+                    body.innerHTML += `<tr>
+                        <td style="color:var(--primary)">#${w.id}</td>
+                        <td>${w.user_id}</td>
+                        <td style="color:var(--success)">$${parseFloat(w.amount).toFixed(2)}</td>
+                        <td><span class="status-pill ${sClass}">${w.status}</span></td>
+                        <td>${new Date(w.requested_at).toLocaleDateString()}</td>
+                        <td>${actions}</td>
+                    </tr>`;
+                });
+            } catch (e) {}
+        }
+
+        async function updateStatus(id, status) {
+            try {
+                await fetch(`${API_BASE}/update_withdraw`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) });
+                showToast(`Status changed to ${status}`);
+                loadDashboard(); loadWithdrawals();
+            } catch (e) { showToast("Error", "error"); }
+        }
+
+        function openUsersModal() {
+            document.getElementById("usersModal").style.display = "flex";
+            document.getElementById("searchInput").value = "";
+            userOffset = 0; document.getElementById("usersList").innerHTML = ""; loadUsers();
+        }
+        function closeUsersModal() { document.getElementById("usersModal").style.display = "none"; }
+
+        function searchUsers() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                userOffset = 0; document.getElementById("usersList").innerHTML = ""; loadUsers();
+            }, 500);
+        }
+
+        async function loadUsers() {
+            const list = document.getElementById("usersList");
+            const btn = document.getElementById("loadMoreUsers");
+            const query = document.getElementById("searchInput").value;
+            btn.innerText = "Wait...";
+
+            try {
+                const res = await fetch(`${API_BASE}/users?offset=${userOffset}&limit=20&search=${query}`);
+                const data = await res.json();
+
+                if (!data.length) {
+                    btn.style.display = "none";
+                    if(userOffset === 0) list.innerHTML = "<p style='text-align:center; padding:20px; font-weight:800;'>No players found.</p>";
+                    return;
+                }
+
+                data.forEach(u => {
+                    const banTag = u.is_banned ? `<span class="ban-tag">Banned</span>` : '';
+                    list.innerHTML += `
+                        <div class="user-card">
+                            <div>
+                                <div class="user-name">${u.username || "Unknown"} ${banTag}</div>
+                                <div class="user-id">ID: ${u.telegram_id}</div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:20px;">
+                                <div style="text-align:right;">
+                                    <div style="color:var(--primary); font-weight:800; font-size:1.1rem;">${u.points} pts</div>
+                                    <div style="color:var(--success); font-weight:800;">$${(u.points/1000).toFixed(2)}</div>
+                                </div>
+                                <button class="icon-btn btn-gear" onclick="openManageModal('${u.id}', '${u.username}', ${u.is_banned || 0})"><i class="ph-bold ph-gear"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+                userOffset += 20; btn.innerText = "Load More Players"; btn.style.display = "block";
+            } catch (e) { btn.innerText = "Error"; }
+        }
+
+        function openManageModal(id, name, isBanned) {
+            activeUserId = id; activeUserBanStatus = isBanned;
+            document.getElementById("manageUserName").innerText = name || "Unknown";
+            document.getElementById("manageUserId").innerText = "DB ID: " + id;
+            document.getElementById("usdAmount").value = "";
+            switchTab('controls');
+
+            const banBtn = document.getElementById("banBtn");
+            banBtn.innerText = isBanned ? "Unban Player" : "Ban Player";
+            banBtn.className = isBanned ? "btn btn-success" : "btn btn-danger";
+
+            document.getElementById("manageModal").style.display = "flex";
+        }
+        function closeManageModal() { document.getElementById("manageModal").style.display = "none"; }
+
+        function switchTab(tab) {
+            document.getElementById('tabControls').classList.remove('active');
+            document.getElementById('tabHistory').classList.remove('active');
+            document.getElementById('controlsSection').style.display = 'none';
+            document.getElementById('historySection').style.display = 'none';
+
+            if(tab === 'controls') {
+                document.getElementById('tabControls').classList.add('active');
+                document.getElementById('controlsSection').style.display = 'block';
+            } else {
+                document.getElementById('tabHistory').classList.add('active');
+                document.getElementById('historySection').style.display = 'block';
+                loadUserHistory();
+            }
+        }
+
+        async function updateCoins(action) {
+            const usdInput = parseFloat(document.getElementById("usdAmount").value);
+            
+            if (!usdInput || usdInput <= 0 || isNaN(usdInput)) {
+                return showToast("Please enter a valid USD amount", "error");
+            }
+            
+            const pointsToSend = usdInput * 1000;
+
+            try {
+                await fetch(`${API_BASE}/update_user_points`, { 
+                    method: "POST", 
+                    headers: {"Content-Type": "application/json"}, 
+                    body: JSON.stringify({ user_id: activeUserId, points: pointsToSend, action: action }) 
+                });
+                showToast(`$${usdInput} (${action}ed) Successfully!`); 
+                document.getElementById("usdAmount").value = "";
+                userOffset = 0; document.getElementById("usersList").innerHTML = ""; loadUsers();
+            } catch(e) { 
+                showToast("Error updating amount", "error"); 
+            }
+        }
+
+        async function toggleBan() {
+            const newStatus = activeUserBanStatus ? 0 : 1;
+            try {
+                await fetch(`${API_BASE}/toggle_ban`, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ user_id: activeUserId, is_banned: newStatus }) });
+                showToast(newStatus ? "Banned" : "Unbanned"); closeManageModal();
+                userOffset = 0; document.getElementById("usersList").innerHTML = ""; loadUsers();
+            } catch(e) {}
+        }
+
+        async function loadUserHistory() {
+            const content = document.getElementById("historyContent");
+            content.innerHTML = "<p style='text-align:center; color:var(--text-muted);'>Wait...</p>";
+            
+            try {
+                const resW = await fetch(`${API_BASE}/user_full_history/${activeUserId}`);
+                const dataW = await resW.json();
+                const resE = await fetch(`${API_BASE}/admin/user_earnings/${activeUserId}`);
+                const dataE = await resE.json();
+                
+                content.innerHTML = "";
+                
+                if (dataE.success && dataE.history.length > 0) {
+                    content.innerHTML += `<h4 style="margin:10px 0; color:var(--primary); font-size:1.2rem;">Recent Quiz Earnings</h4>`;
+                    dataE.history.forEach(i => {
+                        content.innerHTML += `<div class="history-row">
+                            <span style="color:#fff;">${i.title || 'Quiz'}</span>
+                            <span style="color:var(--warning);">+${i.score} pts</span>
+                        </div>`;
+                    });
+                }
+                
+                if (dataW.success && dataW.history.length > 0) {
+                    content.innerHTML += `<h4 style="margin:20px 0 10px; color:var(--success); font-size:1.2rem;">Recent Withdrawals</h4>`;
+                    dataW.history.forEach(i => {
+                        let c = i.status === 'paid' ? 'var(--success)' : (i.status === 'rejected' ? 'var(--danger)' : 'var(--warning)');
+                        content.innerHTML += `<div class="history-row">
+                            <span style="color:#fff;">$${i.amount}</span>
+                            <span style="color:${c}; text-transform:uppercase;">${i.status}</span>
+                        </div>`;
+                    });
+                }
+
+                if (content.innerHTML === "") content.innerHTML = "<p style='text-align:center; color:var(--text-muted);'>No records found.</p>";
+            } catch(e) { content.innerHTML = "<p style='color:var(--danger);'>Error loading data</p>"; }
+        }
+
+        loadDashboard(); loadWithdrawals();
+    </script>
+</body>
+</html>

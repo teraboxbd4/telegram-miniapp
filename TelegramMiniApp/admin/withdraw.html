@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+if(!localStorage.getItem('admin')){
+  window.location.href='login.html';
+}
+</script>
+<script>
+function logout(){
+  localStorage.removeItem('admin');
+  window.location.href = 'login.html';
+}
+</script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Withdraw Request - YourAppName</title>
+  <style>
+    body {
+      background: #0b0b0b;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .box {
+      background: #111827;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #00ffff44;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 5px;
+      background: #1f2937;
+      color: #fff;
+    }
+    button {
+      background: #00ffff;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #00d4d4;
+    }
+    .msg {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>💸 YourAppName Withdraw Request</h2>
+    <input type="text" id="telegram_id" placeholder="Your Telegram ID (e.g. tg001)" required />
+    <input type="email" id="binance_email" placeholder="Your Binance Email" required />
+    <input type="number" id="amount" step="0.01" placeholder="Enter Amount ($)" required />
+    <button onclick="sendRequest()">Request Withdraw</button>
+    <p class="msg" id="msg"></p>
+  </div>
+
+  <script>
+    async function sendRequest() {
+      const telegram_id = document.getElementById('telegram_id').value;
+      const binance_email = document.getElementById('binance_email').value;
+      const amount = document.getElementById('amount').value;
+      const msg = document.getElementById('msg');
+
+      if (!telegram_id || !binance_email || !amount) {
+        msg.textContent = "⚠️ Please fill all fields.";
+        msg.style.color = "red";
+        return;
+      }
+
+      const response = await fetch('http://72.60.208.21:4000/api/withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ telegram_id, binance_email, amount })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        msg.textContent = "✅ Withdraw request submitted successfully!";
+        msg.style.color = "#00ff88";
+      } else {
+        msg.textContent = "❌ " + data.error;
+        msg.style.color = "red";
+      }
+    }
+  </script>
+</body>
+</html>

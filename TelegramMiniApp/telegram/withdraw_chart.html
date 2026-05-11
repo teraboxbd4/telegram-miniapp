@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7-Day Withdraw Chart</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #0a0f16;
+  color: #fff;
+  text-align: center;
+  margin: 0;
+  padding: 10px;
+}
+h2 { color: #00aaff; margin: 15px 0; }
+
+#backBtn {
+  background: #00aaff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+#backBtn:hover {
+  background: #007acc;
+  transform: scale(1.05);
+}
+
+#chartBox { width: 90%; max-width: 450px; margin: auto; }
+
+button {
+  background: #161b22;
+  border: none;
+  color: #58a6ff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  margin: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+button.active { background: #00aaff; color: #fff; }
+</style>
+</head>
+<body>
+  <h2>?? Withdrawals (Last 7 Days)</h2>
+
+  <!-- ?? Back Button -->
+  <button id="backBtn" onclick="window.location.href='withdrawals.html'">? Back to History</button>
+
+  <div id="filter">
+    <button data-status="all" class="active">All</button>
+    <button data-status="paid">Paid</button>
+    <button data-status="pending">Pending</button>
+    <button data-status="rejected">Rejected</button>
+  </div>
+
+  <div id="chartBox"><canvas id="withdrawChart"></canvas></div>
+
+<script>
+const ctx = document.getElementById('withdrawChart').getContext('2d');
+let chart;
+const userId = 1; // testing
+const baseURL = 'http://72.60.208.21:4000';
+
+async function fetchData(status='all'){
+  const res = await fetch(`${baseURL}/api/user_withdraws_summary/${userId}`);
+  const data = await res.json();
+  if(!data.success) return;
+
+  const filtered = status==='all' ? data.summary : data.summary.filter(x => x.status===status);
+
+  const days = [...new Set(filtered.map(x=>x.day))];
+  const totals = days.map(d=>{
+    const sameDay = filtered.filter(x=>x.day===d);
+    return sameDay.reduce((sum,v)=>sum+parseFloat(v.total||0),0);
+  });
+
+  renderChart(days, totals, status);
+}
+
+function renderChart(labels, values, status){
+  if(chart) chart.destroy();
+  chart = new Chart(ctx,{
+    type:'bar',
+    data:{ 
+      labels, 
+      datasets:[{
+        label:`${status.toUpperCase()} Withdrawals`,
+        data:values,
+        backgroundColor:'#00aaff'
+      }]
+    },
+    options:{ scales:{ y:{ beginAtZero:true } } }
+  });
+}
+
+document.querySelectorAll('#filter button').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('#filter button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    fetchData(btn.dataset.status);
+  }
+});
+
+fetchData();
+</script>
+</body>
+</html>

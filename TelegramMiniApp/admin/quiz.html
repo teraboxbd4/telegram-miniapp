@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>YourAppName | Quiz Manager</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+<style>
+    :root {
+        --bg-dark: #05080e;
+        --glass: rgba(22, 27, 34, 0.85);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --primary: #00f2ff;
+        --danger: #ff4757;
+        --warning: #ffb142;
+        --text: #ffffff;
+        --text-muted: #94a3b8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; outline: none; font-family: 'Outfit', sans-serif; }
+
+    body {
+        background: radial-gradient(circle at top center, #1a2c4e 0%, #05080e 80%);
+        color: var(--text);
+        min-height: 100vh;
+        padding-bottom: 50px;
+    }
+
+    /* === Header === */
+    header {
+        position: sticky; top: 0; z-index: 100;
+        background: rgba(5, 8, 14, 0.9); backdrop-filter: blur(15px);
+        padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+        border-bottom: 1px solid var(--glass-border); box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+    
+    .add-btn {
+        background: var(--primary); color: #000; border: none; padding: 8px 16px;
+        border-radius: 50px; font-weight: 600; display: flex; align-items: center; gap: 8px;
+        cursor: pointer; transition: 0.3s; box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+    }
+    .add-btn:active { transform: scale(0.95); }
+
+    /* === Container === */
+    .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
+    .page-title { margin-bottom: 20px; color: var(--text-muted); font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; }
+
+    /* === Responsive List Design === */
+    .quiz-list { display: flex; flex-direction: column; gap: 15px; }
+
+    .quiz-item {
+        background: var(--glass); border: 1px solid var(--glass-border);
+        border-radius: 16px; padding: 20px; display: flex; align-items: center; justify-content: space-between;
+        transition: transform 0.2s; animation: fadeIn 0.5s ease backwards;
+    }
+    
+    .quiz-info { display: flex; flex-direction: column; gap: 5px; }
+    .quiz-title { font-size: 1.1rem; font-weight: 600; color: #fff; }
+    .quiz-meta { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 15px; }
+    .quiz-meta span { display: flex; align-items: center; gap: 5px; }
+
+    .action-buttons { display: flex; gap: 10px; }
+
+    .edit-btn {
+        background: rgba(0, 242, 255, 0.1); color: var(--primary);
+        border: none; width: 40px; height: 40px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; transition: 0.2s;
+    }
+    .edit-btn:hover { background: var(--primary); color: #000; }
+
+    .delete-btn {
+        background: rgba(255, 71, 87, 0.1); color: var(--danger);
+        border: none; width: 40px; height: 40px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; transition: 0.2s;
+    }
+    .delete-btn:hover { background: var(--danger); color: #fff; }
+
+    /* === Modal === */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+        z-index: 1000; display: none; justify-content: center; align-items: flex-end;
+    }
+    
+    .modal-content {
+        background: #111620; width: 100%; max-width: 700px; height: 90vh;
+        border-radius: 20px 20px 0 0; display: flex; flex-direction: column;
+        animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.6); border: 1px solid var(--glass-border);
+    }
+
+    @media(min-width: 768px) {
+        .modal-overlay { align-items: center; }
+        .modal-content { height: auto; max-height: 85vh; border-radius: 20px; }
+    }
+
+    .modal-header { padding: 20px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+
+    /* === Form Styling === */
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+    
+    input, textarea {
+        width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+        padding: 12px 15px; border-radius: 10px; color: #fff; font-size: 1rem; transition: 0.3s;
+    }
+    input:focus, textarea:focus { border-color: var(--primary); background: rgba(0, 242, 255, 0.05); }
+
+    .question-block {
+        background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);
+        border-radius: 12px; padding: 15px; margin-bottom: 15px;
+    }
+    .q-head { color: var(--primary); font-weight: 600; margin-bottom: 10px; display: block; }
+    
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+
+    .save-btn {
+        width: 100%; padding: 15px; background: var(--primary); border: none;
+        font-weight: 700; font-size: 1rem; border-radius: 12px; margin-top: 20px; cursor: pointer;
+    }
+
+    /* === Animations === */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .loader { text-align: center; color: var(--text-muted); padding: 40px; }
+
+</style>
+</head>
+<body>
+
+<header>
+    <div class="brand">
+        <i class="ph-fill ph-scroll"></i> YourAppName Quiz
+    </div>
+    <button class="add-btn" onclick="openNewModal()">
+        <i class="ph-bold ph-plus"></i> New Quiz
+    </button>
+</header>
+
+<div class="container">
+    <div class="page-title">Manage Quizzes</div>
+    
+    <div id="quizList" class="quiz-list">
+        <div class="loader">Loading Quizzes...</div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="quizModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Add New Quiz</h3>
+            <button onclick="closeModal()" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;"><i class="ph-bold ph-x"></i></button>
+        </div>
+        
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Quiz Title</label>
+                <input type="text" id="title" placeholder="e.g. Crypto Basics 101">
+            </div>
+
+            <div id="questionsContainer"></div>
+
+            <div class="form-group">
+                <label>Total Reward Points (Coins)</label>
+                <input type="number" id="total_points" placeholder="e.g. 100">
+            </div>
+            
+            <button class="save-btn" id="saveBtn" onclick="saveQuiz()">Publish Quiz</button>
+            <div style="height: 50px;"></div> 
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = "https://admin.yourdomain.com/api/admin";
+    const PUBLIC_API = "https://admin.yourdomain.com/api"; // Added for fetching full quiz details
+    
+    let currentEditId = null; // Tracks if we are adding or editing
+
+    // === Generate Form Fields ===
+    const qContainer = document.getElementById("questionsContainer");
+    for (let i = 1; i <= 8; i++) {
+        qContainer.innerHTML += `
+            <div class="question-block">
+                <span class="q-head">Question #${i}</span>
+                <textarea id="question${i}" rows="2" placeholder="Type question here..."></textarea>
+                <div class="options-grid">
+                    <input type="text" id="option${i}a" placeholder="Opt A">
+                    <input type="text" id="option${i}b" placeholder="Opt B">
+                    <input type="text" id="option${i}c" placeholder="Opt C">
+                    <input type="text" id="option${i}d" placeholder="Opt D">
+                </div>
+                <input type="text" id="correct${i}" placeholder="Correct Answer (e.g. A or text)" style="margin-top:10px; border-color: rgba(0,255,0,0.2);">
+            </div>
+        `;
+    }
+
+    // === Modal Logic ===
+    const modal = document.getElementById("quizModal");
+    function closeModal() { modal.style.display = 'none'; }
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    // Open Modal for NEW Quiz
+    function openNewModal() {
+        currentEditId = null;
+        document.getElementById("modalTitle").innerText = "Add New Quiz";
+        document.getElementById("saveBtn").innerText = "Publish Quiz";
+        clearForm();
+        modal.style.display = 'flex';
+    }
+
+    // Open Modal for EDIT Quiz
+    async function openEditModal(id) {
+        currentEditId = id;
+        document.getElementById("modalTitle").innerText = "Edit Quiz";
+        document.getElementById("saveBtn").innerText = "Update Quiz";
+        clearForm();
+        
+        try {
+            document.getElementById("saveBtn").innerHTML = "Loading...";
+            modal.style.display = 'flex';
+            
+            const res = await fetch(`${PUBLIC_API}/quiz/${id}`);
+            const data = await res.json();
+            
+            if (data.success) {
+                const q = data.quiz;
+                document.getElementById("title").value = q.title;
+                document.getElementById("total_points").value = q.total_points;
+                
+                for (let i = 1; i <= 8; i++) {
+                    document.getElementById(`question${i}`).value = q[`question${i}`] || "";
+                    document.getElementById(`option${i}a`).value = q[`option${i}a`] || "";
+                    document.getElementById(`option${i}b`).value = q[`option${i}b`] || "";
+                    document.getElementById(`option${i}c`).value = q[`option${i}c`] || "";
+                    document.getElementById(`option${i}d`).value = q[`option${i}d`] || "";
+                    document.getElementById(`correct${i}`).value = q[`correct${i}`] || "";
+                }
+            } else {
+                alert("Failed to fetch quiz details.");
+                closeModal();
+            }
+        } catch(e) {
+            alert("Error loading quiz.");
+            closeModal();
+        }
+        document.getElementById("saveBtn").innerText = "Update Quiz";
+    }
+
+    function clearForm() {
+        document.getElementById("title").value = "";
+        document.getElementById("total_points").value = "";
+        for (let i = 1; i <= 8; i++) {
+            document.getElementById(`question${i}`).value = "";
+            document.getElementById(`option${i}a`).value = "";
+            document.getElementById(`option${i}b`).value = "";
+            document.getElementById(`option${i}c`).value = "";
+            document.getElementById(`option${i}d`).value = "";
+            document.getElementById(`correct${i}`).value = "";
+        }
+    }
+
+    // === Load Quizzes ===
+    async function loadQuizzes() {
+        const list = document.getElementById("quizList");
+        try {
+            const res = await fetch(`${API_BASE}/quizzes`);
+            const data = await res.json();
+            
+            list.innerHTML = "";
+
+            if (!data.success || !data.quizzes?.length) {
+                list.innerHTML = `<div class="loader">No quizzes found. Create one!</div>`;
+                return;
+            }
+
+            data.quizzes.forEach((q, index) => {
+                list.innerHTML += `
+                    <div class="quiz-item" style="animation-delay: ${index * 0.1}s">
+                        <div class="quiz-info">
+                            <div class="quiz-title">${q.title}</div>
+                            <div class="quiz-meta">
+                                <span><i class="ph-fill ph-hash"></i> ID: ${q.id}</span>
+                                <span style="color: var(--primary)"><i class="ph-fill ph-coin"></i> ${q.total_points} Coins</span>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="edit-btn" onclick="openEditModal(${q.id})">
+                                <i class="ph-bold ph-pencil-simple"></i>
+                            </button>
+                            <button class="delete-btn" onclick="deleteQuiz(${q.id})">
+                                <i class="ph-bold ph-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (err) {
+            list.innerHTML = `<div class="loader" style="color:var(--danger)">Failed to load data</div>`;
+        }
+    }
+
+    // === Save (Add or Edit) Quiz ===
+    async function saveQuiz() {
+        const btn = document.getElementById('saveBtn');
+        btn.innerHTML = "Saving...";
+        btn.disabled = true;
+
+        const body = {
+            title: document.getElementById("title").value.trim(),
+            total_points: document.getElementById("total_points").value.trim()
+        };
+
+        for (let i = 1; i <= 8; i++) {
+            body[`question${i}`] = document.getElementById(`question${i}`).value;
+            body[`option${i}a`] = document.getElementById(`option${i}a`).value;
+            body[`option${i}b`] = document.getElementById(`option${i}b`).value;
+            body[`option${i}c`] = document.getElementById(`option${i}c`).value;
+            body[`option${i}d`] = document.getElementById(`option${i}d`).value;
+            body[`correct${i}`] = document.getElementById(`correct${i}`).value;
+        }
+
+        // Check if we are adding or editing
+        const endpoint = currentEditId ? `${API_BASE}/edit_quiz/${currentEditId}` : `${API_BASE}/add_quiz`;
+
+        try {
+            const res = await fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            
+            if(data.success) {
+                closeModal();
+                loadQuizzes();
+            } else {
+                alert("Error: " + JSON.stringify(data.error));
+            }
+        } catch (e) {
+            alert("Network Error");
+        }
+        
+        btn.innerHTML = currentEditId ? "Update Quiz" : "Publish Quiz";
+        btn.disabled = false;
+    }
+
+    // === Delete Quiz ===
+    async function deleteQuiz(id) {
+        if (!confirm("Delete this quiz?")) return;
+        
+        try {
+            await fetch(`${API_BASE}/delete_quiz/${id}`, { method: "DELETE" });
+            loadQuizzes();
+        } catch (e) {
+            alert("Delete failed");
+        }
+    }
+
+    // Init
+    loadQuizzes();
+
+</script>
+</body>
+</html>

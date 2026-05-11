@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Withdraw Funds - YourAppName</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #05080e;
+            --glass: rgba(20, 25, 35, 0.7);
+            --border: rgba(255, 255, 255, 0.08);
+            --primary: #00f2ff;
+            --success: #00ff9d;
+            --danger: #ff4757;
+            --gold: #ffd700;
+            --btn-grad: linear-gradient(90deg, #00f2ff, #0066ff);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
+        body {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(0, 242, 255, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(106, 0, 255, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* === Premium Toast Notifications === */
+        #toastContainer {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000;
+            display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 400px;
+        }
+        .toast {
+            background: rgba(20, 25, 35, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border);
+            padding: 16px 20px; border-radius: 16px; display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6); color: #fff; font-weight: 600; font-size: 0.95rem;
+            animation: toastSlideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; transition: opacity 0.3s ease;
+        }
+        .toast-success { border-left: 4px solid var(--success); }
+        .toast-success i { color: var(--success); font-size: 26px; }
+        .toast-error { border-left: 4px solid var(--danger); }
+        .toast-error i { color: var(--danger); font-size: 26px; }
+        @keyframes toastSlideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* === Header === */
+        header {
+            display: flex; align-items: center; gap: 15px; margin-bottom: 25px;
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            border-radius: 12px; width: 42px; height: 42px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; cursor: pointer; transition: 0.2s; font-size: 20px;
+        }
+        .back-btn:active { transform: scale(0.9); }
+        
+        h2 { 
+            margin: 0; font-size: 1.6rem; font-weight: 800; 
+            background: linear-gradient(90deg, #fff, #a0a0a0); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+
+        /* === Premium Form === */
+        .glass-card {
+            background: linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0.01));
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            animation: slideUp 0.5s ease;
+        }
+
+        .input-group { margin-bottom: 18px; }
+        .input-group label { display: block; color: #888; font-size: 0.85rem; margin-bottom: 8px; margin-left: 5px; }
+        
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-icon { position: absolute; left: 16px; color: var(--primary); font-size: 20px; }
+        
+        input {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            padding: 16px 16px 16px 48px;
+            border-radius: 16px;
+            color: #fff;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            transition: 0.3s;
+        }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0, 242, 255, 0.15); background: rgba(0,0,0,0.5); }
+
+        .btn-submit {
+            background: var(--btn-grad);
+            width: 100%; border: none; padding: 16px;
+            border-radius: 16px; color: #000;
+            font-size: 1.1rem; font-weight: 800;
+            cursor: pointer; margin-top: 10px;
+            box-shadow: 0 0 25px rgba(0, 242, 255, 0.3);
+            transition: transform 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-submit:active { transform: scale(0.96); }
+
+        .btn-history {
+            background: transparent; border: 1px solid var(--border);
+            color: #aaa; width: 100%; padding: 14px;
+            border-radius: 16px; margin-top: 15px;
+            cursor: pointer; font-size: 0.95rem; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.3s;
+        }
+        .btn-history:hover { background: rgba(255,255,255,0.05); color: #fff; }
+
+        /* === History List === */
+        #historySection { display: none; margin-top: 25px; animation: fadeIn 0.5s; }
+        
+        .history-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 18px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .h-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .h-amount { font-size: 1.2rem; font-weight: 700; color: #fff; }
+        .h-method { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .h-email { font-size: 0.85rem; color: var(--primary); opacity: 0.8; margin-bottom: 8px; display: block; }
+        .h-date { font-size: 0.75rem; color: #666; }
+
+        .status-badge {
+            padding: 5px 12px; border-radius: 20px;
+            font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
+        }
+        .paid { background: rgba(0, 255, 157, 0.15); color: var(--success); border: 1px solid var(--success); }
+        .pending { background: rgba(255, 165, 0, 0.15); color: orange; border: 1px solid orange; }
+        .rejected { background: rgba(255, 71, 87, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+
+        /* Animations */
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Spinner for Button */
+        .spinner { width: 20px; height: 20px; border: 3px solid rgba(0,0,0,0.3); border-radius: 50%; border-top-color: #000; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <div id="toastContainer"></div>
+
+    <header>
+        <div class="back-btn" onclick="goBack()">
+            <i class="ph-bold ph-arrow-left"></i>
+        </div>
+        <h2>Withdraw Funds</h2>
+    </header>
+
+    <div class="glass-card">
+        <div class="input-group">
+            <label>Binance Username / ID</label>
+            <div class="input-wrapper">
+                <i class="ph-fill ph-user input-icon"></i>
+                <input type="text" id="binance_id" placeholder="e.g. CashKing123">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Binance Email</label>
+            <div class="input-wrapper">
+                <i class="ph-fill ph-envelope-simple input-icon"></i>
+                <input type="email" id="email" placeholder="email@binance.com">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Amount (USD)</label>
+            <div class="input-wrapper">
+                <i class="ph-fill ph-currency-dollar input-icon"></i>
+                <input type="number" id="amount" placeholder="Min $5.00">
+            </div>
+        </div>
+
+        <button class="btn-submit" onclick="requestWithdraw()" id="withdrawBtn">
+            REQUEST WITHDRAW
+        </button>
+
+        <button class="btn-history" onclick="loadHistory()">
+            <i class="ph-fill ph-clock-counter-clockwise"></i> View Withdraw History
+        </button>
+
+        <p style="text-align:center; font-size:0.8rem; color:#666; margin-top:15px;">
+            <i class="ph-fill ph-info"></i> Minimum withdraw $5. Details must be correct.
+        </p>
+    </div>
+
+    <div id="historySection">
+        <h3 style="margin-bottom:15px; color:var(--primary);">History</h3>
+        <div id="historyList">
+            <p style="color:#666; text-align:center;">Loading...</p>
+        </div>
+        <button id="loadMoreBtn" class="btn-history" style="display:none; margin-top:10px;">Load More</button>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // === 0. Premium Notification System ===
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            const icon = type === 'success' ? 'ph-check-circle' : 'ph-warning-circle';
+            
+            toast.innerHTML = `
+                <i class="ph-fill ${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // === 1. Init Telegram ===
+        let tg;
+        try {
+            tg = window.Telegram.WebApp;
+            tg.expand();
+        } catch (e) {
+            console.warn("Telegram not detected, using fallback");
+            tg = null;
+        }
+
+        let allHistory = [];
+        let showCount = 5;
+
+        // === 2. Request Withdraw (With Front-End Balance Verification) ===
+        async function requestWithdraw() {
+            const binance_id = document.getElementById("binance_id").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const amount = parseFloat(document.getElementById("amount").value);
+            let user = tg?.initDataUnsafe?.user || { id: 0000000000 };
+
+            if (!binance_id || !email || !amount || amount < 5) {
+                showToast("Please fill all fields correctly (Minimum $5).", "error");
+                return;
+            }
+
+            const btn = document.getElementById("withdrawBtn");
+            const originalText = btn.innerText;
+            btn.innerHTML = `<div class="spinner"></div> Processing...`;
+            btn.disabled = true;
+
+            try {
+                // Pehle live balance fetch karte hain backend se (Taake ghalat masla na ho)
+                const balRes = await fetch(`https://yourdomain.com/api/user_balance/${user.id}`);
+                const balData = await balRes.json();
+
+                if(balData.success && balData.user) {
+                    let total_usd = Number(balData.user.total_usd) || 0;
+                    
+                    if(amount > total_usd) {
+                        showToast(`Insufficient Balance! You only have $${total_usd.toFixed(2)}.`, "error");
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        return; // Yahin rok do, server tak mat bhejo!
+                    }
+                }
+
+                // Agar balance theek hai, toh ab Request bhejo
+                const res = await fetch("https://yourdomain.com/api/request_withdraw", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        telegram_id: user.id,
+                        method: "Binance",
+                        wallet: binance_id,
+                        email: email,
+                        amount: amount
+                    })
+                });
+
+                const data = await res.json();
+                
+                if (data.success) {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                    showToast("Withdraw request created successfully!", "success");
+                    document.getElementById("amount").value = "";
+                } else {
+                    showToast(data.message || "Withdraw request failed.", "error");
+                }
+            } catch (err) {
+                showToast("Network error. Try again later.", "error");
+            }
+
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+
+        // === 3. Load History ===
+        async function loadHistory() {
+            const user = tg?.initDataUnsafe?.user || { id: 0000000000 };
+            const section = document.getElementById("historySection");
+            const list = document.getElementById("historyList");
+            const loadMore = document.getElementById("loadMoreBtn");
+
+            section.style.display = "block";
+            list.innerHTML = "<p style='color:#aaa; text-align:center; padding:20px;'>Loading history...</p>";
+
+            try {
+                const res = await fetch(`https://yourdomain.com/api/withdrawals/${user.id}`);
+                const data = await res.json();
+
+                if (!data.success || !data.withdrawals?.length) {
+                    list.innerHTML = "<p style='color:#777; text-align:center; padding:20px;'>No withdraw history yet.</p>";
+                    return;
+                }
+
+                allHistory = data.withdrawals;
+                renderHistory();
+
+                if (allHistory.length > showCount) loadMore.style.display = "block";
+                loadMore.onclick = () => {
+                    showCount += 5;
+                    renderHistory();
+                    if (showCount >= allHistory.length) loadMore.style.display = "none";
+                };
+
+            } catch (err) {
+                list.innerHTML = "<p style='color:#f66; text-align:center;'>Error loading withdraw history.</p>";
+            }
+        }
+
+        function renderHistory() {
+            const list = document.getElementById("historyList");
+            const visible = allHistory.slice(0, showCount);
+
+            list.innerHTML = visible.map(item => `
+                <div class="history-card">
+                    <div class="h-row">
+                        <span class="h-method">${item.method}</span>
+                        <span class="status-badge ${item.status.toLowerCase()}">${item.status}</span>
+                    </div>
+                    <div class="h-row">
+                        <span class="h-amount">$${parseFloat(item.amount).toFixed(2)}</span>
+                        <span class="h-date">${new Date(item.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <span class="h-email">${item.binance_email}</span>
+                </div>
+            `).join('');
+        }
+
+        // === 4. Go Back Logic ===
+        function goBack() {
+            window.location.href = "dashboard.html";
+        }
+    </script>
+
+</body>
+</html>

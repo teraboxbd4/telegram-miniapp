@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YourAppName Withdraw Management</title>
+<style>
+  body {
+    background: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+  }
+  h2 {
+    color: cyan;
+  }
+  table {
+    width: 90%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: #0a0f1a;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  th, td {
+    border: 1px solid #1f2937;
+    padding: 12px;
+    text-align: center;
+  }
+  th {
+    background: #111827;
+    color: cyan;
+  }
+  tr:nth-child(even) {
+    background: #0d1117;
+  }
+  .paid {
+    color: #00ff00;
+  }
+  .pending {
+    color: orange;
+  }
+  .rejected {
+    color: red;
+  }
+  button {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .btn-paid {
+    background: #00ff88;
+    color: #000;
+  }
+  .btn-reject {
+    background: #ff4444;
+    color: #fff;
+  }
+/* 🌟 Top Bar Design */
+.topbar {
+  background: linear-gradient(90deg, #00111a, #002b36, #00111a);
+  color: cyan;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 25px;
+  border-bottom: 2px solid cyan;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 0 15px #00ffff55;
+  animation: glowBar 3s infinite alternate;
+}
+
+@keyframes glowBar {
+  from { box-shadow: 0 0 10px cyan; }
+  to { box-shadow: 0 0 30px cyan, 0 0 60px cyan; }
+}
+
+.topbar h2 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px cyan;
+}
+
+.datetime {
+  font-size: 15px;
+  color: #00ffffcc;
+  font-weight: bold;
+}
+
+</style>
+</head>
+<body>
+<!-- 🌟 Animated Top Bar -->
+<div class="topbar">
+  <h2>💰 YourAppName Admin Panel</h2>
+  <div class="datetime" id="datetime"></div>
+</div>
+
+<div id="summaryBox" style="
+  color:#0ff;
+  font-weight:bold;
+  font-size:18px;
+  margin-bottom:20px;
+  background:#0a0f1a;
+  padding:10px;
+  border-radius:8px;
+  width:fit-content;
+  margin:auto;
+">
+  Loading summary...
+</div>
+
+  <h2>💸 YourAppName Withdraw Management</h2>
+  <table id="withdrawTable">
+    <tr>
+      <th>ID</th>
+      <th>User ID</th>
+      <th>Amount</th>
+      <th>Status</th>
+      <th>Date</th>
+      <th>Action</th>
+    </tr>
+  </table>
+
+<script>
+async function loadWithdraws() {
+  try {
+    const res = await fetch("http://72.60.208.21:4000/api/all_withdraws", {
+      method: "GET",
+      headers: {
+        "Accept": "application/json"
+      }
+    });
+
+    const data = await res.json();
+    console.log("Data loaded:", data); // Debug line
+
+    const table = document.getElementById("withdrawTable");
+    table.innerHTML = `
+      <tr>
+        <th>ID</th>
+        <th>User ID</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Action</th>
+      </tr>
+    `;
+
+    if (!data || data.length === 0) {
+      table.innerHTML += `<tr><td colspan="6">No Withdrawals Found</td></tr>`;
+      return;
+    }
+
+    data.forEach(w => {
+      let actionBtns = "";
+      if (w.status === "pending") {
+        actionBtns = `
+          <button class="btn-paid" onclick="updateStatus(${w.id}, 'paid')">✅ Mark Paid</button>
+          <button class="btn-reject" onclick="updateStatus(${w.id}, 'rejected')">❌ Reject</button>
+        `;
+      } else if (w.status === "paid") {
+        actionBtns = `<span class="paid">✔ Paid</span>`;
+      } else if (w.status === "rejected") {
+        actionBtns = `<span class="rejected">✖ Rejected</span>`;
+      }
+
+      table.innerHTML += `
+        <tr>
+          <td>${w.id}</td>
+          <td>${w.user_id}</td>
+          <td>$${parseFloat(w.amount).toFixed(2)}</td>
+          <td class="${w.status}">${w.status}</td>
+          <td>${w.requested_at}</td>
+          <td>${actionBtns}</td>
+        </tr>
+      `;
+    });
+  } catch (err) {
+    console.error("Error loading withdraws:", err);
+    alert("Error fetching withdraw data — please check console.");
+  }
+}
+
+// ? Updated version (works for both Paid & Rejected)
+async function updateStatus(id, status) {
+  const confirmMsg = confirm(`Are you sure you want to mark this as ${status.toUpperCase()}?`);
+  if (!confirmMsg) return;
+
+  // Choose API based on status
+  const url =
+    status === "paid"
+      ? "http://72.60.208.21:4000/api/mark_paid"
+      : "http://72.60.208.21:4000/api/reject_withdraw";
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      // ? Show popup message
+      showPopup(`? Withdraw #${id} marked as ${status}`);
+      // ? Refresh withdraw table
+      loadWithdraws();
+    } else {
+      showPopup(`? Failed to mark #${id} as ${status}`);
+    }
+  } catch (err) {
+    console.error(err);
+    showPopup(`?? Error updating withdraw #${id}`);
+  }
+}
+
+setInterval(loadWithdraws, 20000);
+loadWithdraws();
+
+async function loadWithdraws() {
+  try {
+    const res = await fetch("http://72.60.208.21:4000/api/all_withdraws");
+    const data = await res.json();
+
+    // === SUMMARY CALCULATION ===
+    let totalPaid = 0, totalPending = 0, totalRejected = 0;
+    data.forEach(w => {
+      if (w.status === "paid") totalPaid += parseFloat(w.amount);
+      else if (w.status === "pending") totalPending += parseFloat(w.amount);
+      else if (w.status === "rejected") totalRejected += parseFloat(w.amount);
+    });
+
+    const summaryDiv = document.getElementById("summaryBox");
+    summaryDiv.innerHTML = `
+      💰 <b>Total Paid:</b> $${totalPaid.toFixed(2)} &nbsp; | &nbsp;
+      🕓 <b>Pending:</b> $${totalPending.toFixed(2)} &nbsp; | &nbsp;
+      ❌ <b>Rejected:</b> $${totalRejected.toFixed(2)} &nbsp; | &nbsp;
+      📊 <b>Total Requests:</b> ${data.length}
+    `;
+
+    // === TABLE FILL ===
+    const table = document.getElementById("withdrawTable");
+    table.innerHTML = `
+      <tr>
+        <th>ID</th>
+        <th>User ID</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Action</th>
+      </tr>
+    `;
+
+    data.forEach(w => {
+      let actionBtns = "";
+      if (w.status === "pending") {
+        actionBtns = `
+          <button class="btn-paid" onclick="updateStatus(${w.id}, 'paid')">✅ Mark Paid</button>
+          <button class="btn-reject" onclick="updateStatus(${w.id}, 'rejected')">❌ Reject</button>
+        `;
+      } else if (w.status === "paid") {
+        actionBtns = `<span class="paid">✔ Paid</span>`;
+      } else if (w.status === "rejected") {
+        actionBtns = `<span class="rejected">✖ Rejected</span>`;
+      }
+
+      table.innerHTML += `
+        <tr>
+          <td>${w.id}</td>
+          <td>${w.user_id}</td>
+          <td>$${parseFloat(w.amount).toFixed(2)}</td>
+          <td class="${w.status}">${w.status}</td>
+          <td>${w.requested_at}</td>
+          <td>${actionBtns}</td>
+        </tr>
+      `;
+    });
+  } catch (err) {
+    console.error("Error loading withdraws:", err);
+  }
+}
+
+</script>
+<script>
+function updateTime() {
+  const now = new Date();
+  const options = {
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  };
+  document.getElementById("datetime").textContent =
+    now.toLocaleString('en-US', options);
+}
+
+setInterval(updateTime, 1000);
+updateTime();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ad Manager - YourAppName</title>
+<style>
+body {
+  background: #0b0b0b;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  padding: 20px;
+}
+h2 {
+  color: cyan;
+  text-align: center;
+  margin-bottom: 30px;
+}
+textarea {
+  width: 100%;
+  height: 100px;
+  border: none;
+  border-radius: 8px;
+  background: #111827;
+  color: #fff;
+  padding: 10px;
+  font-size: 14px;
+}
+button {
+  background: cyan;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+.section {
+  margin-bottom: 25px;
+  background: #1f2937;
+  padding: 15px;
+  border-radius: 10px;
+}
+</style>
+</head>
+<body>
+
+<h2>?? YourAppName Ad Manager</h2>
+<div id="adsContainer">Loading...</div>
+
+<script>
+async function loadAds() {
+  const res = await fetch("https://admin.yourdomain.com/api/ads_config");
+  const data = await res.json();
+  const container = document.getElementById("adsContainer");
+  container.innerHTML = "";
+
+  data.forEach(ad => {
+    const div = document.createElement("div");
+    div.className = "section";
+    div.innerHTML = `
+      <h3>${ad.position}</h3>
+      <textarea id="${ad.position}">${ad.script}</textarea>
+      <button onclick="saveAd('${ad.position}')">Save</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+async function saveAd(position) {
+  const script = document.getElementById(position).value;
+  const res = await fetch("https://admin.yourdomain.com/api/update_ad", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ position, script })
+  });
+  const data = await res.json();
+  alert(data.message || "Saved!");
+}
+
+loadAds();
+</script>
+</body>
+</html>

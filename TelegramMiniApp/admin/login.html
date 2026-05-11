@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login - YourAppName</title>
+<style>
+  body {
+    background: #0b0b0b;
+    color: #fff;
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .login-box {
+    background: #111827;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 350px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+  }
+  input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: none;
+    background: #1f2937;
+    color: #fff;
+    font-size: 14px;
+  }
+  button {
+    background: linear-gradient(135deg, #00aaff, #00ccff);
+    border: none;
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  button:hover {
+    background: linear-gradient(135deg, #00ccff, #0099ff);
+  }
+</style>
+</head>
+<body>
+
+<div class="login-box">
+  <h2>Admin Login</h2>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="adminLogin()">Login</button>
+  <p id="msg" style="color:#ff8080;font-size:13px;"></p>
+</div>
+
+<script>
+async function adminLogin() {
+  const user = document.getElementById("username").value.trim();
+  const pass = document.getElementById("password").value.trim();
+  const msg = document.getElementById("msg");
+
+  // Hardcoded credentials for now (can later move to backend check)
+  const ADMIN_USER = "admin";
+  const ADMIN_PASS = "CHANGE_THIS_PASSWORD"; // ?? change this
+
+  if (user === ADMIN_USER && pass === ADMIN_PASS) {
+    localStorage.setItem('admin', 'true');  // ? SAVE SESSION
+    msg.style.color = '#00ff99';
+    msg.innerText = "Login successful... Redirecting!";
+    setTimeout(() => {
+      window.location.href = "dashboard.html";
+    }, 800);
+  } else {
+    msg.innerText = "Invalid username or password!";
+  }
+}
+</script>
+
+</body>
+</html>

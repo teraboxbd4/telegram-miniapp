@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P527SRRDK8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-P527SRRDK8');
+</script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>User Dashboard - YourAppName</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script src='//libtl.com/sdk.js' data-zone='10051927' data-sdk='show_10051927'></script>
+
+    <style>
+        :root {
+            --bg: #05080e;
+            --glass: rgba(22, 27, 34, 0.7);
+            --border: rgba(255, 255, 255, 0.08);
+            --gold: #ffd700;
+            --cyan: #00f2ff;
+            --success: #00ff9d;
+            --danger: #ff4757;
+            --pending: #ffaa00;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(0, 242, 255, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(106, 0, 255, 0.15) 0px, transparent 50%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        /* === Header === */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .user-pill {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+            padding: 8px 16px; border-radius: 30px; display: flex; align-items: center; gap: 10px;
+        }
+        .avatar-circle {
+            width: 30px; height: 30px; background: linear-gradient(135deg, var(--cyan), #0066ff);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;
+        }
+
+        /* === Smart Ad Slot Design === */
+        .ad-banner-slot {
+            width: 100%;
+            min-height: 60px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            margin: 15px 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* === Balance Card === */
+        .balance-container { perspective: 1000px; margin-bottom: 20px; }
+        .balance-card {
+            background: linear-gradient(160deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+            backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px; padding: 25px; position: relative; overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4); transition: transform 0.1s;
+        }
+        .balance-card::before {
+            content: ''; position: absolute; top: 0; left: -150%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: skewX(-20deg); animation: shimmer 6s infinite;
+        }
+        
+        .bal-label { font-size: 0.9rem; color: #8b9bb4; letter-spacing: 1px; text-transform: uppercase; }
+        .bal-amount { 
+            font-size: 3.2rem; font-weight: 800; margin: 5px 0 15px; 
+            background: linear-gradient(to bottom, #fff, #b4c6e6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
+        }
+        
+        .stats-grid { display: flex; gap: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+        .stat-item span:first-child { font-size: 0.8rem; color: #8b9bb4; display: block; }
+        .stat-item span:last-child { font-size: 1.1rem; color: var(--gold); font-weight: 600; }
+
+        /* === Start Earning Button === */
+        .start-earning-btn {
+            background: linear-gradient(90deg, #ffd700, #ffaa00);
+            width: 100%; border: none; padding: 18px; border-radius: 16px;
+            color: #000; font-size: 1.2rem; font-weight: 800;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin-bottom: 20px; box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
+            transition: transform 0.2s; animation: pulse 2s infinite;
+        }
+        .start-earning-btn:active { transform: scale(0.96); }
+
+        /* === Actions === */
+        .actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .act-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            padding: 15px; border-radius: 16px; text-align: center; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            color: #fff; font-weight: 600;
+        }
+        .act-btn i { font-size: 24px; padding: 8px; border-radius: 8px; }
+        .icon-withdraw { background: rgba(0, 242, 255, 0.15); color: var(--cyan); }
+        .icon-refresh { background: rgba(0, 255, 157, 0.15); color: #00ff9d; }
+
+        /* === Latest Payout Widget === */
+        #withdrawStatusBox { display: none; margin-bottom: 25px; animation: slideDown 0.6s ease backwards; }
+        
+        .payout-widget {
+            background: linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            border-radius: 20px; padding: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid var(--border); position: relative; overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .theme-pending { border-color: var(--pending); box-shadow: 0 0 25px rgba(255, 170, 0, 0.2); }
+        .theme-paid { border-color: var(--success); box-shadow: 0 0 25px rgba(0, 255, 157, 0.2); }
+        .theme-rejected { border-color: var(--danger); box-shadow: 0 0 25px rgba(255, 71, 87, 0.2); }
+
+        .widget-left { display: flex; align-items: center; gap: 15px; }
+        .widget-icon { 
+            width: 48px; height: 48px; border-radius: 14px; 
+            display: flex; align-items: center; justify-content: center; font-size: 24px; 
+        }
+        .widget-info span { display: block; font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .widget-info strong { font-size: 1.3rem; color: #fff; font-weight: 700; }
+
+        .status-pill { 
+            padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        /* === History Section === */
+        .history-box {
+            background: var(--glass); border-radius: 24px; padding: 20px; border: 1px solid var(--border);
+        }
+        .h-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .h-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; border-radius: 16px; margin-bottom: 10px;
+            background: rgba(255,255,255,0.02); border: 1px solid transparent; transition: 0.2s;
+        }
+        .h-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); transform: translateX(3px); }
+        
+        .h-left { display: flex; align-items: center; gap: 12px; }
+        .h-icon-small { 
+            width: 38px; height: 38px; background: rgba(0, 242, 255, 0.1); color: var(--cyan); 
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; 
+        }
+        
+        .h-meta h4 { margin: 0; font-size: 0.95rem; color: #fff; font-weight: 600; }
+        .h-meta span { font-size: 0.75rem; color: #777; display: block; margin-top: 2px; }
+        
+        .h-right { text-align: right; }
+        .h-usd { color: var(--success); font-weight: 700; display: block; font-size: 0.95rem; }
+        .h-pts { font-size: 0.75rem; color: var(--gold); font-weight: 500; }
+
+        /* === Ban Screen Overlay === */
+        #banOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 8, 14, 0.95); backdrop-filter: blur(20px);
+            z-index: 9999; display: none; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .ban-card {
+            background: linear-gradient(160deg, rgba(255, 71, 87, 0.15), rgba(0,0,0,0.9));
+            border: 1px solid var(--danger); border-radius: 24px; padding: 40px 20px;
+            text-align: center; box-shadow: 0 0 50px rgba(255, 71, 87, 0.3);
+            max-width: 400px; width: 100%; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .ban-icon {
+            width: 80px; height: 80px; background: rgba(255, 71, 87, 0.2);
+            color: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 40px; margin: 0 auto 20px; box-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+        }
+        .ban-title { font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
+        .ban-text { color: #a1a1aa; font-size: 1rem; line-height: 1.6; margin-bottom: 30px; }
+        .ban-btn {
+            background: var(--danger); color: #fff; text-decoration: none; padding: 15px 30px;
+            border-radius: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 10px;
+            box-shadow: 0 5px 20px rgba(255, 71, 87, 0.4); font-size: 1.1rem;
+        }
+
+        /* Animations */
+        @keyframes shimmer { 100% { left: 150%; } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(255, 215, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div id="banOverlay">
+        <div class="ban-card">
+            <div class="ban-icon"><i class="ph-bold ph-prohibit"></i></div>
+            <div class="ban-title">Account Suspended</div>
+            <div class="ban-text">We noticed suspicious activity and your account has been restricted.<br><br>Please contact our support team to appeal this decision.</div>
+            <a href="https://t.me/your_telegram_username" class="ban-btn"><i class="ph-fill ph-telegram-logo"></i> Contact Admin</a>
+        </div>
+    </div>
+
+    <div class="header">
+        <h2 style="margin:0; font-size:1.4rem; color:var(--cyan);">YourAppName</h2>
+        <div class="user-pill">
+            <div class="avatar-circle" id="uAvatar">U</div>
+            <span id="uName">Loading...</span>
+        </div>
+    </div>
+
+    <div class="ad-banner-slot">
+        <span>Advertisement</span>
+    </div>
+
+    <div class="balance-container">
+        <div class="balance-card" id="tiltCard">
+            <div class="bal-label">Current Balance</div>
+            <div class="bal-amount" id="balanceDisplay">$0.00</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span>Points</span>
+                    <span id="pointsDisplay">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Value</span>
+                    <span id="usdRateDisplay">$0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="start-earning-btn" onclick="window.location.href='quiz.html'">
+        <i class="ph-fill ph-lightning" style="font-size: 24px;"></i>
+        START EARNING
+    </button>
+
+    <div class="actions-row">
+        <div class="act-btn" onclick="handleWithdraw()">
+            <i class="ph-bold ph-bank icon-withdraw"></i>
+            <span>Withdraw</span>
+        </div>
+        
+        <div class="act-btn" onclick="refresh()">
+            <i class="ph-bold ph-arrows-clockwise icon-refresh"></i>
+            <span>Refresh</span>
+        </div>
+    </div>
+
+    <div id="withdrawStatusBox"></div>
+
+    <div class="ad-banner-slot">
+        <span>Advertisement</span>
+    </div>
+
+    <div class="history-box">
+        <div class="h-header">
+            <h3 style="margin:0; color:var(--cyan); font-size:1.1rem;">Quiz Earnings</h3>
+            <i class="ph-bold ph-trend-up" style="color:var(--success)"></i>
+        </div>
+        <div id="historyList">
+            <p style="text-align:center; color:#777;">Loading...</p>
+        </div>
+        <button id="loadMore" style="width:100%; padding:12px; background:transparent; border:1px solid var(--border); color:#888; border-radius:12px; margin-top:15px; display:none; cursor:pointer;">Load More</button>
+    </div>
+
+    <div style="text-align:center; color:#555; font-size:12px; margin-top:30px; display:flex; align-items:center; justify-content:center; gap:6px;">
+        <i class="ph-fill ph-copyright"></i> 2026 YourAppName All Rights Reserved
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <script>
+        let tg;
+        try {
+            tg = window.Telegram.WebApp;
+            tg.expand();
+        } catch (e) {
+            tg = null;
+        }
+
+        // ? NEW: ONLINE TRACKER (HEARTBEAT) ?
+        let user = tg?.initDataUnsafe?.user || { id: localStorage.getItem("yourapp_user_id") || 0000000000 };
+        function sendHeartbeat() {
+            if(user && user.id) {
+                fetch("https://yourdomain.com/api/heartbeat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ telegram_id: user.id })
+                }).catch(e => console.log("Heartbeat error"));
+            }
+        }
+        sendHeartbeat(); // Page load hote hi ping
+        setInterval(sendHeartbeat, 45000); // Phir har 45 sec baad ping
+
+        // ? MONETAG REWARDED AD HELPER FUNCTION ?
+        function showMonetagAd(callback) {
+            if (typeof show_10051927 === 'function') {
+                show_10051927().then(() => {
+                    if(callback) callback(); // Ad complete hone ke baad action execute karo
+                }).catch(e => {
+                    console.log("Monetag Ad Error:", e);
+                    if(callback) callback(); // Agar ad me masla ho toh bhi user ko rokna nahi hai
+                });
+            } else {
+                console.log("Ad script not loaded yet.");
+                if(callback) callback();
+            }
+        }
+
+        // ? AUTO TRIGGER AD EVERY 60 SECONDS ?
+        setInterval(() => {
+            showMonetagAd(); 
+            console.log("1-Minute Auto Ad Triggered");
+        }, 60000); 
+
+        // ? WITHDRAW LOGIC (First Ad, then Redirect) ?
+        function handleWithdraw() {
+            showMonetagAd(() => {
+                window.location.href = 'https://yourdomain.com/telegram/withdrawals.html';
+            });
+        }
+
+        // ? REFRESH LOGIC (First Ad, then Load User Data) ?
+        function refresh() {
+            showMonetagAd(() => {
+                document.getElementById("balanceDisplay").innerText = "...";
+                loadUser();
+            });
+        }
+
+        function animateValue(element, start, end, duration, prefix = "", suffix = "") {
+            const range = end - start;
+            let startTime = null;
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const progress = Math.min((timestamp - startTime) / duration, 1);
+                const value = (start + range * progress).toFixed(2);
+                element.textContent = `${prefix}${value}${suffix}`;
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        let allResults = [];
+        let displayedCount = 5;
+
+        async function loadUser() {
+            const balanceEl = document.getElementById("balanceDisplay");
+            const pointsEl = document.getElementById("pointsDisplay");
+            const rateEl = document.getElementById("usdRateDisplay");
+            const nameEl = document.getElementById("uName");
+            const avatarEl = document.getElementById("uAvatar");
+
+            localStorage.setItem("yourapp_user_id", user.id);
+
+            nameEl.innerText = user.first_name || "User";
+            avatarEl.innerText = (user.first_name || "U").charAt(0).toUpperCase();
+
+            try {
+                const res = await fetch(`https://yourdomain.com/api/user_balance/${user.id}`);
+                const data = await res.json();
+
+                if (!data.success || !data.user) {
+                    balanceEl.innerText = "Error";
+                    return;
+                }
+
+                const u = data.user;
+                
+                // Ban Screen Logic
+                if (u.is_banned === 1 || u.is_banned === true) {
+                    document.getElementById("banOverlay").style.display = "flex";
+                    return; 
+                }
+
+                u.points = Number(u.points) || 0;
+                u.usd_from_points = Number(u.usd_from_points) || 0;
+                u.total_usd = Number(u.total_usd) || 0;
+
+                animateValue(balanceEl, 0, u.total_usd, 1500, "$");
+                pointsEl.innerText = u.points;
+                rateEl.innerText = "$" + u.usd_from_points.toFixed(2);
+
+                if (u.total_usd > 0 && window.confetti) {
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#ffd700', '#00f2ff'] });
+                }
+
+                loadHistory(user.id);
+                checkLatestWithdraw(user.id);
+
+            } catch (err) {
+                console.error("User load error:", err);
+                balanceEl.innerText = "$0.00";
+            }
+        }
+
+        async function loadHistory(id) {
+            const list = document.getElementById("historyList");
+            const loadBtn = document.getElementById("loadMore");
+
+            try {
+                const res = await fetch(`https://yourdomain.com/api/user_earning_history/${id}`);
+                const data = await res.json();
+
+                if (!data.success || !data.history?.length) {
+                    list.innerHTML = "<p style='text-align:center;color:#777;'>No quiz earnings yet.</p>";
+                    return;
+                }
+
+                allResults = data.history;
+                renderHistory();
+
+                if (allResults.length > 5) {
+                    loadBtn.style.display = "block";
+                    loadBtn.onclick = () => {
+                        displayedCount += 5;
+                        renderHistory();
+                        if (displayedCount >= allResults.length) loadBtn.style.display = "none";
+                    };
+                }
+
+            } catch (err) {
+                list.innerHTML = "<p style='text-align:center;color:#f66;'>Error loading history.</p>";
+            }
+        }
+
+        function renderHistory() {
+            const list = document.getElementById("historyList");
+            const visible = allResults.slice(0, displayedCount);
+
+            list.innerHTML = visible.map(item => `
+                <div class="h-item">
+                    <div class="h-left">
+                        <div class="h-icon-small" style="width:38px; height:38px; background:rgba(0,242,255,0.1); color:var(--cyan); border-radius:12px; display:flex; align-items:center; justify-content:center;"><i class="ph-fill ph-game-controller"></i></div>
+                        <div class="h-meta">
+                            <h4 title="${item.quiz_title}">${item.quiz_title}</h4>
+                            <span style="font-size:0.75rem; color:#777; display:block; margin-top:2px;">${new Date(item.created_at).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                    <div class="h-right" style="text-align:right;">
+                        <span class="h-usd" style="color:var(--success); font-weight:700; display:block; font-size:0.95rem;">+$${item.usd_earned}</span>
+                        <span class="h-pts" style="font-size:0.75rem; color:var(--gold); font-weight:500;">+${item.score} pts</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function checkLatestWithdraw(userId) {
+            const box = document.getElementById("withdrawStatusBox");
+            try {
+                const res = await fetch(`https://yourdomain.com/api/withdrawals/${userId}`);
+                const data = await res.json();
+
+                if (data.success && data.withdrawals && data.withdrawals.length > 0) {
+                    const latest = data.withdrawals[0]; 
+                    let theme = "theme-pending";
+                    let icon = "ph-clock-countdown";
+                    let color = "#ffaa00";
+                    let bgIcon = "rgba(255, 170, 0, 0.15)";
+
+                    if(latest.status === 'paid') {
+                        theme = "theme-paid"; icon = "ph-check-circle"; color = "#00ff9d"; bgIcon = "rgba(0, 255, 157, 0.15)";
+                    }
+                    if(latest.status === 'rejected') {
+                        theme = "theme-rejected"; icon = "ph-x-circle"; color = "#ff4757"; bgIcon = "rgba(255, 71, 87, 0.15)";
+                    }
+
+                    box.style.display = "block";
+                    box.innerHTML = `
+                        <div class="payout-widget ${theme}">
+                            <div class="widget-left">
+                                <div class="widget-icon" style="background:${bgIcon}; color:${color}">
+                                    <i class="ph-fill ${icon}"></i>
+                                </div>
+                                <div class="widget-info">
+                                    <span style="display:block; font-size:0.7rem; color:#aaa; text-transform:uppercase;">Withdraw Status</span>
+                                    <strong style="font-size:1.3rem; color:#fff; font-weight:700;">$${parseFloat(latest.amount).toFixed(2)}</strong>
+                                </div>
+                            </div>
+                            <div class="status-pill" style="padding:6px 14px; border-radius:20px; font-size:0.75rem; font-weight:800; text-transform:uppercase; background:${bgIcon}; color:${color}">
+                                ${latest.status}
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                console.log("No withdrawals found");
+            }
+        }
+
+        // Tilt Effect logic
+        const card = document.getElementById('tiltCard');
+        const container = document.querySelector('.balance-container');
+        if(container && card) {
+            container.addEventListener('mousemove', (e) => {
+                const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+                const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+                card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+            });
+            container.addEventListener('mouseleave', () => {
+                card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+            });
+        }
+
+        loadUser();
+
+    </script>
+</body>
+</html>

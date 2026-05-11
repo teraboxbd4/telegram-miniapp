@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Withdrawal History</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0d1117;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #58a6ff;
+    }
+    table {
+      width: 90%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background: #161b22;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+    th, td {
+      padding: 14px;
+      border-bottom: 1px solid #2f3640;
+    }
+    th {
+      background: #21262d;
+      color: #58a6ff;
+    }
+    .status {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+    .paid {
+      background: #238636;
+      color: white;
+    }
+    .pending {
+      background: #b78103;
+      color: white;
+    }
+    .rejected {
+      background: #f85149;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>?? Withdrawal History</h1>
+  <table id="withdrawTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Amount ($)</th>
+        <th>Status</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const userId = 1; // change dynamically if needed
+    const apiURL = `http://72.60.208.21:4000/api/user_withdraws/${userId}`;
+
+    async function loadWithdrawals() {
+      const res = await fetch(apiURL);
+      const data = await res.json();
+
+      const tbody = document.querySelector("#withdrawTable tbody");
+      tbody.innerHTML = "";
+
+      if (!data.success || !data.withdraws.length) {
+        tbody.innerHTML = `<tr><td colspan="4">No withdrawals found</td></tr>`;
+        return;
+      }
+
+      data.withdraws.forEach(w => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${w.id}</td>
+          <td>$${w.amount}</td>
+          <td><span class="status ${w.status}">${w.status}</span></td>
+          <td>${w.date}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    loadWithdrawals();
+  </script>
+
+</body>
+</html>

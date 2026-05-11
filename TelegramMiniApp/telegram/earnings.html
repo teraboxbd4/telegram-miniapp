@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Earnings - YourAppName</title>
+<style>
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: #0d1117;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+}
+h2 {
+  color: #00aaff;
+  margin-bottom: 20px;
+}
+.card {
+  background: #161b22;
+  border-radius: 15px;
+  padding: 20px;
+  margin: 10px auto;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+.card h3 {
+  color: #00aaff;
+  margin-bottom: 8px;
+}
+.card p {
+  margin: 5px 0;
+  font-size: 1.1em;
+}
+.total-box {
+  background: linear-gradient(135deg, #00aaff, #0077ff);
+  color: #fff;
+  font-size: 1.8em;
+  font-weight: bold;
+  border-radius: 15px;
+  padding: 15px;
+  margin-top: 10px;
+}
+.history {
+  background: #161b22;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+.loading {
+  font-size: 18px;
+  color: #bbb;
+  margin-top: 50px;
+}
+.footer {
+  margin-top: 30px;
+  color: #888;
+  font-size: 13px;
+}
+</style>
+</head>
+<body>
+  <h2>?? YourAppName Earnings</h2>
+
+  <div id="earnings-content">
+    <div class="loading">Loading your earnings...</div>
+  </div>
+
+  <div class="footer"> 2025 YourAppName  All Rights Reserved</div>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+const tg = window.Telegram.WebApp;
+tg.expand();
+
+async function loadEarnings() {
+  const user = tg.initDataUnsafe?.user;
+  const box = document.getElementById("earnings-content");
+
+  if (!user || !user.id) {
+    box.innerHTML = "<p>?? Please open this page inside Telegram.</p>";
+    return;
+  }
+
+  try {
+    const res = await fetch(`https://yourdomain.com/api/user_earnings/${user.id}`);
+    const data = await res.json();
+    console.log("API Response:", data);
+
+    if (!data.success || !data.user) {
+      box.innerHTML = "<p>? No earnings data found.</p>";
+      return;
+    }
+
+    const u = data.user;
+
+    box.innerHTML = `
+      <div class="card">
+        <h3>?? ${u.name}</h3>
+        <p>?? Telegram ID: ${u.telegram_id}</p>
+        <p>?? Joined: ${new Date(u.joined_at).toLocaleDateString()}</p>
+      </div>
+
+      <div class="card total-box">
+        ?? Total Earnings: $${u.total_earnings.toFixed(2)}
+      </div>
+
+      <div class="card">
+        <h3>?? Breakdown</h3>
+        <p>? Points: ${u.points}</p>
+        <p>?? Balance: $${u.balance.toFixed(2)}</p>
+        <p>? Daily Earnings: $${u.daily_earnings.toFixed(3)}</p>
+        <p>?? Weekly Earnings: $${u.weekly_earnings.toFixed(2)}</p>
+        <p>?? Referral Bonus: $${u.referral_bonus.toFixed(2)}</p>
+      </div>
+
+      <div class="history">
+        <h3>?? Transaction History</h3>
+        <p>(Coming Soon...)</p>
+      </div>
+    `;
+  } catch (err) {
+    console.error(err);
+    box.innerHTML = "<p>?? Error loading earnings data.</p>";
+  }
+}
+
+loadEarnings();
+</script>
+</body>
+</html>
