@@ -14,9 +14,9 @@ app.use(express.static(__dirname + '/user'));
 // PostgreSQL Connection
 // =========================
 const db = new Pool({
-  host: "db.ecblqqfxjtxpgvmuqxtd.supabase.co",
+  host: "aws-1-ap-southeast-1.pooler.supabase.com",
   port: 5432,
-  user: "postgres",
+  user: "postgres.ecblqqfxjtxpgvmuqxtd",
   password: "AVNS_hzGH8yeaY28AUeLVWQ4",
   database: "postgres",
   ssl: { rejectUnauthorized: false }
